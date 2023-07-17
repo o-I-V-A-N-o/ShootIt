@@ -4305,7 +4305,7 @@ MonoBehaviour:
   _gunsImage:
   - {fileID: 21300000, guid: 51dc61e58b01ceb4d85b3fd96fb0d6e2, type: 3}
   - {fileID: 21300000, guid: 882ea03ac6b92804ab9102ad66bb5abe, type: 3}
-  _bonusImage: {fileID: 0}
+  _bonusImage: {fileID: 1968762815}
   _health: {fileID: 1361410311}
   _currentShootingRange: {fileID: 77839248}
   _maxShootingRange: {fileID: 319794700}
