@@ -14,6 +14,9 @@ public class UiController : MonoBehaviour
     private Sprite [] _gunsImage;
 
     [SerializeField, Space]
+    private GameObject _bonusImage;
+
+    [SerializeField, Space]
     private TextMeshProUGUI _health;
 
     [SerializeField, Space]
@@ -79,5 +82,10 @@ public class UiController : MonoBehaviour
     public void SetGunImage(int num)
     {
         _activeGunImage.GetComponent<Image>().sprite = _gunsImage[num];
+    }
+
+    public void ShowBonusImage(bool state)
+    {
+        _bonusImage.SetActive(state);
     }
 }

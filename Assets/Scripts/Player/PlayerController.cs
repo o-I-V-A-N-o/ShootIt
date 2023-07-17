@@ -336,6 +336,26 @@ public class PlayerController : MonoBehaviour
         return bullet;
     }
 
+    public void LowAccuracyAndFastSpeed()
+    {
+        StartCoroutine(LowAccuracyFastSpeed());
+    }
+
+    private IEnumerator LowAccuracyFastSpeed()
+    {
+        float speed = _activeGun.GetSpeed();
+
+        _activeGun.SetAiming(5f, 10f);
+        _activeGun.SetSpeed(0.1f);
+        UI.ShowBonusImage(true);
+
+        yield return new WaitForSeconds(5f);
+
+        _activeGun.SetAimingDefault();
+        _activeGun.SetSpeed(speed);
+        UI.ShowBonusImage(false);
+    }
+
     private void SetActiveGun(int number)
     {
         _activeGun.transform.position = _inactiveGunPosition.position;

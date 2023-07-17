@@ -34,6 +34,10 @@ public class EnemyController : MonoBehaviour
             {
                 _killer.GetBullet(20);
             }
+            else if (random > 10)
+            {
+                _killer.LowAccuracyAndFastSpeed();
+            }
             else
             {
                 _killer.GetDamage(20);

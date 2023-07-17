@@ -87,6 +87,16 @@ public class Gun : MonoBehaviour
         }
     }
 
+    public float GetSpeed()
+    {
+        return shootSpeed;
+    }
+
+    public void SetSpeed(float speed)
+    {
+        shootSpeed = speed;
+    }
+
     public void SetAiming(float horizontal, float vertical)
     {
         _horizontalAim = horizontal;
