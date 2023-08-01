@@ -279,7 +279,7 @@ public class PlayerController : MonoBehaviour
 
     public bool GetScoreBalance(int score)
     {
-        if (_scoreBalance > 0)
+        if (score > 0 || _scoreBalance > 0)
         {
             _scoreBalance += score;
             SaveScoreBalance();
