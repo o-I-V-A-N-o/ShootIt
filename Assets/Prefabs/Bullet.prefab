@@ -236,5 +236,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 158894bf2abeb214f9c53040b9a4e0a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameManager: {fileID: 0}
   _speed: 9999
   _lifeTime: 5
+  _explodeRadius: 30
+  _enemies: []
+  _particle: {fileID: 7248831038968686258, guid: 7c0d20081565eab4db7c1142bde4b627, type: 3}
+  _particleBoom: {fileID: 5035314171337857189, guid: ae5c862e247b1a6469099b706f422c9e, type: 3}

@@ -22,6 +22,15 @@ public class ShootingRangeController : MonoBehaviour
     [SerializeField, Space]
     private Transform _playerPosition;
 
+    private int _id;
+
+    private bool _loaded = false;
+
+
+    public void SetId(int id)
+    {
+        _id = id;
+    }
     public void SetEnemy(Transform enemy)
     {
         foreach (Transform enemyPosition in _enemyPool)
@@ -41,11 +50,6 @@ public class ShootingRangeController : MonoBehaviour
         _gameManager.AddShootingRange(this);
     }
 
-    void Update()
-    {
-        
-    }
-
     private void AddEnemy()
     {
         for (int i = 0; i < _enemyPool.Length; i++)
@@ -53,7 +57,13 @@ public class ShootingRangeController : MonoBehaviour
             GameObject newEnemy = Instantiate(_enemyPrefabs[Random.Range(0, _enemyPrefabs.Length)]);
             SetEnemy(newEnemy.transform);
             newEnemy.GetComponent<EnemyController>().SetShootingRangeController(this);
+            newEnemy.GetComponent<EnemyController>().SetId(i);
             _enemies.Add(newEnemy.GetComponent<EnemyController>());
+
+            if (_loaded)
+            {
+                newEnemy.GetComponent<EnemyController>().LoadGame();
+            }
         }
     }
 
@@ -65,7 +75,16 @@ public class ShootingRangeController : MonoBehaviour
 
     private void CheckEnemyCount()
     {
-        if (_enemies.Count < 1)
+        int countEnemy = 0;
+        foreach (var enemy in _enemies)
+        {
+            if (enemy != null)
+            {
+                countEnemy++;
+            }
+        }
+
+        if (countEnemy < 1)
         {
             EndLevel();
         }
@@ -116,5 +135,26 @@ public class ShootingRangeController : MonoBehaviour
     public List<EnemyController> GetEnemies()
     {
         return _enemies;
+    }
+
+    public void SaveGame()
+    {
+        if (_enemies.Count > 0)
+        {
+            foreach (EnemyController enemy in _enemies)
+            {
+                if (enemy != null)
+                {
+                    enemy.SaveGame();
+                }
+            }
+        }
+        Debug.Log("Save - shooting range " + _id);
+    }
+
+    public void LoadGame()
+    {
+        _loaded = true;
+        Debug.Log("Load - shooting range " + _id);
     }
 }

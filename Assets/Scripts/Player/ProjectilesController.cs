@@ -22,6 +22,11 @@ public class ProjectilesController : MonoBehaviour
     [SerializeField]
     private List<EnemyController> _enemies;
 
+    [SerializeField]
+    private GameObject _particle;
+    [SerializeField]
+    private GameObject _particleBoom;
+
     void Start()
     {
         StartCoroutine(LifeTime());
@@ -29,9 +34,14 @@ public class ProjectilesController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        var newParticle = Instantiate(_particle);
+        newParticle.transform.position = transform.position;
+
         if (_explode)
         {
             Explode();
+            var newParticleBoom = Instantiate(_particleBoom);
+            newParticleBoom.transform.position = transform.position;
         }
         else if (collision.transform.parent.TryGetComponent<EnemyController>(out EnemyController enemy))
         {
@@ -65,16 +75,15 @@ public class ProjectilesController : MonoBehaviour
 
     public void Explode()
     {
-        _enemies = _gameManager.GetActiveShootingRange().GetEnemies();
-        
-        for (int i = 0; i < _enemies.Count; i++)
-        {
-            float distance = Vector3.SqrMagnitude(this.transform.position - _enemies[i].transform.position);
+        Collider[] overlapColliders = Physics.OverlapSphere(transform.position, _explodeRadius);
 
-            if (distance < _explodeRadius * _explodeRadius)
+        for (int i = 0; i < overlapColliders.Length; i++)
+        {
+            if (overlapColliders[i].tag == "Enemy")
             {
-                _enemies[i].SetKiller(_shooter);
-                _enemies[i].Die("Simple");
+                var enemy = overlapColliders[i].transform.parent.GetComponent<EnemyController>();
+                enemy.SetKiller(_shooter);
+                enemy.Die("Simple");
             }
         }
     }

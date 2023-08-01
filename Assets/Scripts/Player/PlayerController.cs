@@ -59,6 +59,8 @@ public class PlayerController : MonoBehaviour
 
     public bool isShopping = false;
 
+    public bool isPaused = false;
+
     void Start()
     {
         _health = _maxHealth;
@@ -74,13 +76,14 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!isShopping)
+        if (!isShopping && !isPaused)
         {
             //Move();
             UseGun();
             Aiming();
             UseInventory();
         }
+        Pause();
     }
 
     private void Move()
@@ -128,7 +131,7 @@ public class PlayerController : MonoBehaviour
             {
                 _activeGunNum += 1;
             }
-            Debug.Log(_activeGunNum + "" + _guns.Length);
+            
             SetActiveGun(_activeGunNum);
         }
         if (mouse < -0.1)
@@ -141,7 +144,7 @@ public class PlayerController : MonoBehaviour
             {
                 _activeGunNum = _guns.Length - 1;
             }
-            Debug.Log(_activeGunNum + "" + _guns.Length);
+
             SetActiveGun(_activeGunNum);
         }
     }
@@ -179,6 +182,16 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    private void Pause()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            _gameManager.PauseGame();
+        }
+    }
+
+
 
     public void UpdateProgress(int current, int max)
     {
@@ -266,7 +279,7 @@ public class PlayerController : MonoBehaviour
 
     public bool GetScoreBalance(int score)
     {
-        if (score > 0 || _scoreBalance > 0)
+        if (_scoreBalance > 0)
         {
             _scoreBalance += score;
             SaveScoreBalance();
@@ -281,7 +294,6 @@ public class PlayerController : MonoBehaviour
 
     public int GetScoreBalance()
     {
-        Debug.Log(_scoreBalance);
         return _scoreBalance;
     }
 
@@ -370,10 +382,25 @@ public class PlayerController : MonoBehaviour
         _activeGun.transform.parent = _activeGunPosition;
     }
 
-    public void Shopping(bool state)
+    public void Stopped(bool state, string param)
     {
-        isShopping = state;
-        playerCamera.LockCamera(state);
+        switch (param)
+        {
+            case "pause":
+                isPaused = state;
+                break;
+            case "shop":
+                isShopping = state;
+                break;
+        }
+        if (!isShopping && !isPaused)
+        {
+            playerCamera.LockCamera(false);
+        }
+        else
+        {
+            playerCamera.LockCamera(true);
+        }
     }
 
     public UiController GetUI()
@@ -390,5 +417,48 @@ public class PlayerController : MonoBehaviour
     {
         UI.UIUpdateScoreBalance(_scoreBalance);
         PlayerPrefs.SetInt("ScoreBalance", _scoreBalance);
+    }
+
+    public void SaveGame()
+    {
+        PlayerPrefs.SetInt("Health", _health);
+
+        SaveScore();
+        SaveScoreBalance();
+        PlayerPrefs.SetInt("ScoreCurrent", _scoreCurrent);
+
+        foreach (Gun gun in _guns)
+        {
+            gun.SaveGame();
+        }
+        PlayerPrefs.SetInt("ActiveGun", _activeGunNum);
+
+        PlayerPrefs.SetInt("Medicine", medicine);
+        PlayerPrefs.SetInt("Grenade", grenade);
+
+        Debug.Log("Save - player");
+    }
+
+    public void LoadGame()
+    {
+        _health = PlayerPrefs.GetInt("Health");
+        UI.UIUpdateHealth(_health);
+
+        _scoreCurrent = PlayerPrefs.GetInt("ScoreCurrent");
+        UI.UIUpdateScoreCurrent(_scoreCurrent);
+
+        foreach (Gun gun in _guns)
+        {
+            gun.LoadGame();
+        }
+        _activeGunNum = PlayerPrefs.GetInt("ActiveGun");
+        SetActiveGun(_activeGunNum);
+
+        medicine = PlayerPrefs.GetInt("Medicine");
+        UI.UIUpdateMedicine(medicine);
+        grenade = PlayerPrefs.GetInt("Grenade");
+        UI.UIUpdateGrenade(grenade);
+
+        Debug.Log("Load - player");
     }
 }

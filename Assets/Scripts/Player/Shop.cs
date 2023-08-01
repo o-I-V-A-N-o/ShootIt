@@ -30,10 +30,14 @@ public class Shop : MonoBehaviour
     private TextMeshProUGUI _uiAutomaticReload;
 
     private int _machineGunSpeedLevel = 0;
+    private int _machineGunSpeedLevelMax = 20;
     private int _machineGunAccuracyLevel = 0;
+    private int _machineGunAccuracyLevelMax = 20;
 
     private int _pistolSpeedLevel = 0;
+    private int _pistolSpeedLevelMax = 20;
     private int _pistolAccuracyLevel = 0;
+    private int _pistolAccuracyLevelMax = 20;
 
     private bool _automaticReload;
     private int price = -1;
@@ -52,23 +56,29 @@ public class Shop : MonoBehaviour
 
     public void UpgradeMGSpeedLevel()
     {
-        if (_player.GetScoreBalance(price))
+        if (_machineGunSpeedLevel < _machineGunSpeedLevelMax)
         {
-            _machineGunSpeedLevel++;
-            _player.UpgradeGun("MachineGun", "Speed");
-            UpdateUI(_uiMachineGunSpeedLevel, _machineGunSpeedLevel.ToString());
-            UpdateUIScoreBalance();
+            if (_player.GetScoreBalance(price))
+            {
+                _machineGunSpeedLevel++;
+                _player.UpgradeGun("MachineGun", "Speed");
+                UpdateUI(_uiMachineGunSpeedLevel, _machineGunSpeedLevel.ToString());
+                UpdateUIScoreBalance();
+            }
         }
     }
 
     public void UpgradeMGAccuracyLevel()
     {
-        if (_player.GetScoreBalance(price))
+        if (_machineGunAccuracyLevel < _machineGunAccuracyLevelMax)
         {
-            _machineGunAccuracyLevel++;
-            _player.UpgradeGun("MachineGun", "Accuracy");
-            UpdateUI(_uiMachineGunAccuracyLevel, _machineGunAccuracyLevel.ToString());
-            UpdateUIScoreBalance();
+            if (_player.GetScoreBalance(price))
+            {
+                _machineGunAccuracyLevel++;
+                _player.UpgradeGun("MachineGun", "Accuracy");
+                UpdateUI(_uiMachineGunAccuracyLevel, _machineGunAccuracyLevel.ToString());
+                UpdateUIScoreBalance();
+            }
         }
     }
 
@@ -84,23 +94,29 @@ public class Shop : MonoBehaviour
 
     public void UpgradePSpeedLevel()
     {
-        if (_player.GetScoreBalance(price))
+        if (_pistolSpeedLevel < _pistolSpeedLevelMax)
         {
-            _pistolSpeedLevel++;
-            _player.UpgradeGun("Pistol", "Speed");
-            UpdateUI(_uiPistolSpeedLevel, _pistolSpeedLevel.ToString());
-            UpdateUIScoreBalance();
+            if (_player.GetScoreBalance(price))
+            {
+                _pistolSpeedLevel++;
+                _player.UpgradeGun("Pistol", "Speed");
+                UpdateUI(_uiPistolSpeedLevel, _pistolSpeedLevel.ToString());
+                UpdateUIScoreBalance();
+            }
         }
     }
 
     public void UpgradePAccuracyLevel()
     {
-        if (_player.GetScoreBalance(price))
+        if (_pistolAccuracyLevel < _pistolAccuracyLevelMax)
         {
-            _pistolAccuracyLevel++;
-            _player.UpgradeGun("Pistol", "Accuracy");
-            UpdateUI(_uiPistolAccuracyLevel, _pistolAccuracyLevel.ToString());
-            UpdateUIScoreBalance();
+            if (_player.GetScoreBalance(price))
+            {
+                _pistolAccuracyLevel++;
+                _player.UpgradeGun("Pistol", "Accuracy");
+                UpdateUI(_uiPistolAccuracyLevel, _pistolAccuracyLevel.ToString());
+                UpdateUIScoreBalance();
+            }
         }
     }
 
@@ -119,6 +135,7 @@ public class Shop : MonoBehaviour
         if (!(_player.automaticReload == true) && _player.GetScoreBalance(price))
         {
             _player.automaticReload = true;
+            _automaticReload = true;
             UpdateUI(_uiAutomaticReload, "V");
             UpdateUIScoreBalance();
         }
@@ -128,4 +145,43 @@ public class Shop : MonoBehaviour
     {
         _uiScoreCount.text = _player.GetScoreBalance().ToString();
     }
+
+    public void SaveGame()
+    {
+        PlayerPrefs.SetInt("MachineGunSpeedLevel", _machineGunSpeedLevel);
+        PlayerPrefs.SetInt("MachineGunAccuracyLevel", _machineGunAccuracyLevel);
+
+        PlayerPrefs.SetInt("PistolSpeedLevel", _pistolSpeedLevel);
+        PlayerPrefs.SetInt("PistolAccuracyLevel", _pistolAccuracyLevel);
+
+        if (_automaticReload)
+        {
+            PlayerPrefs.SetInt("AutomaticReload", 1);
+        }
+
+        Debug.Log("Save - shop");
+    }
+
+    public void LoadGame()
+    {
+        _machineGunSpeedLevel = PlayerPrefs.GetInt("MachineGunSpeedLevel");
+        UpdateUI(_uiMachineGunSpeedLevel, _machineGunSpeedLevel.ToString());
+        _machineGunAccuracyLevel = PlayerPrefs.GetInt("MachineGunAccuracyLevel");
+        UpdateUI(_uiMachineGunAccuracyLevel, _machineGunAccuracyLevel.ToString());
+
+        _pistolSpeedLevel = PlayerPrefs.GetInt("PistolSpeedLevel");
+        UpdateUI(_uiPistolSpeedLevel, _pistolSpeedLevel.ToString());
+        _pistolAccuracyLevel = PlayerPrefs.GetInt("PistolAccuracyLevel");
+        UpdateUI(_uiPistolAccuracyLevel, _pistolAccuracyLevel.ToString());
+
+        if (PlayerPrefs.GetInt("AutomaticReload") > 0)
+        {
+            _automaticReload = true;
+            _player.automaticReload = true;
+            UpdateUI(_uiAutomaticReload, "V");
+        }
+
+        Debug.Log("Load - shop");
+    }
+    
 }

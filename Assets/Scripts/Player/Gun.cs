@@ -23,7 +23,7 @@ public class Gun : MonoBehaviour
     private float _verticalAim;
 
     [SerializeField, Space]
-    private float shootSpeed = 1f;
+    private float shootSpeed;
 
     [SerializeField, Space]
     private int currentBullet;
@@ -31,6 +31,9 @@ public class Gun : MonoBehaviour
     private int maxBulletInGun = 20;
     [SerializeField]
     private int maxBullet = 100;
+
+    [SerializeField, Space]
+    private GameObject _particle;
 
     private bool onShoot = false;
     private bool refreshing = false;
@@ -42,7 +45,7 @@ public class Gun : MonoBehaviour
 
         currentBullet = maxBulletInGun;
 
-        UI = _player.GetUI();
+        //UI = _player.GetUI();
         UI.UIUpdateGun(currentBullet, maxBullet);
     }
 
@@ -77,6 +80,9 @@ public class Gun : MonoBehaviour
         newProjectile.transform.eulerAngles = _projectilesSpawn.eulerAngles + new Vector3(Random.Range(-_horizontalAim, _horizontalAim), 0f, Random.Range(-_verticalAim, _verticalAim));
         newProjectile.GetComponent<Rigidbody>().AddForce(newProjectile.transform.up * 9999);
         newProjectile.GetComponent<ProjectilesController>().SetShooter(_player);
+
+        var newParticle = Instantiate(_particle);
+        newParticle.transform.position = _projectilesSpawn.position;
 
         yield return new WaitForSeconds(shootSpeed);
 
@@ -170,13 +176,13 @@ public class Gun : MonoBehaviour
 
     public void UpgradeShootSpeed()
     {
-        if (shootSpeed > 0)
+        if (shootSpeed > 0.2f)
         {
             shootSpeed -= 0.05f;
         }
         else
         {
-            shootSpeed = 0.1f;
+            shootSpeed = 0.2f;
         }
     }
 
@@ -207,5 +213,30 @@ public class Gun : MonoBehaviour
     public void Activate()
     {
         UI.UIUpdateGun(currentBullet, maxBullet);
+    }
+
+    public void SaveGame()
+    {
+        PlayerPrefs.SetFloat("hAim-" + name, _horizontalAimDefault);
+        PlayerPrefs.SetFloat("vAim-" + name, _verticalAimDefault);
+        PlayerPrefs.SetFloat("speed-" + name, shootSpeed);
+        PlayerPrefs.SetInt("currentBullet-" + name, currentBullet);
+        PlayerPrefs.SetInt("maxBullet-" + name, maxBullet);
+        Debug.Log("Save - gun " + this.name);
+    }
+
+    public void LoadGame()
+    {
+        _horizontalAimDefault = PlayerPrefs.GetFloat("hAim-" + name);
+        _verticalAimDefault = PlayerPrefs.GetFloat("vAim-" + name);
+        SetAimingDefault();
+
+        shootSpeed = PlayerPrefs.GetFloat("speed-" + name);
+
+        currentBullet = PlayerPrefs.GetInt("currentBullet-" + name);
+        maxBullet = PlayerPrefs.GetInt("maxBullet-" + name);
+        UI.UIUpdateGun(currentBullet, maxBullet);
+
+        Debug.Log("Load - gun " + this.name);
     }
 }

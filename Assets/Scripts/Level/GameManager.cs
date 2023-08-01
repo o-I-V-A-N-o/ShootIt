@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
     private PlayerController _player;
 
     [SerializeField]
+    private GameObject _gameUI;
+
+    [SerializeField]
     private Shop _playerShop;
 
     [SerializeField]
@@ -21,12 +24,19 @@ public class GameManager : MonoBehaviour
     
     public bool inProgress = false;
 
+    private bool inPause = false;
+
     public int num = 0;
+
+    private int _srId = 0;
 
     private void Start()
     {
         StartCoroutine(ChangeColorMaterial());
-
+        if (PlayerPrefs.GetString("LoadGame") == "yes")
+        {
+            LoadGame();
+        }
         inProgress = true;
         OpenShop();
     }
@@ -34,6 +44,8 @@ public class GameManager : MonoBehaviour
     public void AddShootingRange(ShootingRangeController shootingRange)
     {
         _shootingRanges.Add(shootingRange);
+        shootingRange.SetId(_srId);
+        _srId++;
     }
 
     private void StartLevel(int number)
@@ -61,9 +73,32 @@ public class GameManager : MonoBehaviour
         
     }
 
+    public void PauseGame()
+    {
+        if (inPause)
+        {
+            Time.timeScale = 1f;
+            _gameUI.SetActive(false);
+            _player.Stopped(false, "pause");
+            inPause = false;
+            if (!_player.isShopping)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+        else
+        {
+            Time.timeScale = 0f;
+            _gameUI.SetActive(true);
+            _player.Stopped(true, "pause");
+            inPause = true;
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+    }
+
     public void OpenShop()
     {
-        _player.Shopping(true);
+        _player.Stopped(true, "shop");
         Cursor.lockState = CursorLockMode.Confined;
         _playerShop.gameObject.SetActive(true);
         _playerShop.Open();
@@ -71,7 +106,7 @@ public class GameManager : MonoBehaviour
 
     public void CloseShop()
     {
-        _player.Shopping(false);
+        _player.Stopped(false, "shop");
         Cursor.lockState = CursorLockMode.Locked;
         _playerShop.gameObject.SetActive(false);
         StartLevel(num);
@@ -80,6 +115,28 @@ public class GameManager : MonoBehaviour
     public ShootingRangeController GetActiveShootingRange()
     {
         return _shootingRanges[num];
+    }
+
+    public void SaveGame()
+    {
+        PlayerPrefs.DeleteAll();
+        Debug.Log("Start save game !");
+        PlayerPrefs.SetInt("Game_progress", num);
+        _shootingRanges[num].SaveGame();
+        _player.SaveGame();
+        _playerShop.SaveGame();
+        PlayerPrefs.Save();
+        Debug.Log("Save");
+    }
+
+    public void LoadGame()
+    {
+        num = PlayerPrefs.GetInt("Game_progress");
+        _srId = num;
+        _shootingRanges[num].LoadGame();
+        _player.LoadGame();
+        _playerShop.LoadGame();
+        Debug.Log("Load");
     }
 
     public void EndGame()
@@ -94,11 +151,6 @@ public class GameManager : MonoBehaviour
 #if PLATFORM_STANDALONE_WIN
         Application.Quit();
 #endif
-    }
-
-    public void StartRainbow()
-    {
-        StartCoroutine(ChangeColorMaterial());
     }
 
     private IEnumerator ChangeColorMaterial()

@@ -9,13 +9,19 @@ public class EnemyController : MonoBehaviour
 
     private PlayerController _killer;
 
+    private int _id;
+
     private void Update()
     {
         var x = Random.Range(0f, 20f);
         var y = Random.Range(0f, 20f);
         var z = Random.Range(0f, 20f);
         transform.Rotate(new Vector3(x, y, z) * 10f * Time.deltaTime);
-        //StartCoroutine(Rotate());
+    }
+
+    public void SetId(int id)
+    {
+        _id = id;
     }
 
     public void SetShootingRangeController(ShootingRangeController shootingRangeController)
@@ -37,6 +43,34 @@ public class EnemyController : MonoBehaviour
         while (true)
         {
             transform.Rotate(new Vector3(Random.Range(0f, 10f), Random.Range(0f, 10f), Random.Range(0f, 10f)) * Time.deltaTime);
+        }
+    }
+
+    public void SaveGame()
+    {
+        PlayerPrefs.SetInt("Enemy-" + _id, +_id);
+
+        PlayerPrefs.SetFloat("EnemyPosX-" + _id, transform.position.x);
+        PlayerPrefs.SetFloat("EnemyPosY-" + _id, transform.position.y);
+        PlayerPrefs.SetFloat("EnemyPosZ-" + _id, transform.position.z);
+
+        PlayerPrefs.SetFloat("EnemyRotX-" + _id, transform.rotation.x);
+        PlayerPrefs.SetFloat("EnemyRotY-" + _id, transform.rotation.y);
+        PlayerPrefs.SetFloat("EnemyRotZ-" + _id, transform.rotation.z);
+        Debug.Log("Save - enemy-" + _id);
+    }
+
+    public void LoadGame()
+    {
+        if (PlayerPrefs.HasKey("Enemy-" + _id))
+        {
+            transform.position = new Vector3(PlayerPrefs.GetFloat("EnemyPosX-" + _id), PlayerPrefs.GetFloat("EnemyPosY-" + _id), PlayerPrefs.GetFloat("EnemyPosZ-" + _id));
+            transform.eulerAngles = new Vector3(PlayerPrefs.GetFloat("EnemyRotX-" + _id), PlayerPrefs.GetFloat("EnemyRotY-" + _id), PlayerPrefs.GetFloat("EnemyRotZ-" + _id));
+            Debug.Log("Load - enemy-" + _id);
+        }
+        else
+        {
+            Destroy(this.gameObject);
         }
     }
 
